@@ -122,76 +122,79 @@ export const DraggableGrid = function<DataType extends IBaseItemType>(
   }
   function onStartDrag(_: GestureResponderEvent, gestureState: PanResponderGestureState) {
     const activeItem = getActiveItem()
-    if (!activeItem) return false
-    props.onDragStart && props.onDragStart(activeItem.itemData)
-    const { x0, y0, moveX, moveY } = gestureState
-    const activeOrigin = blockPositions[orderMap[activeItem.key].order]
-    const x = activeOrigin.x - x0
-    const y = activeOrigin.y - y0
-    activeItem.currentPosition.setOffset({
-      x,
-      y,
-    })
-    activeBlockOffset = {
-      x,
-      y,
+    if (activeItem) {
+      props.onDragStart && props.onDragStart(activeItem.itemData)
+      const { x0, y0, moveX, moveY } = gestureState
+      const activeOrigin = blockPositions[orderMap[activeItem.key].order]
+      const x = activeOrigin.x - x0
+      const y = activeOrigin.y - y0
+      activeItem.currentPosition.setOffset({
+        x,
+        y,
+      })
+      activeBlockOffset = {
+        x,
+        y,
+      }
+      activeItem.currentPosition.setValue({
+        x: moveX,
+        y: moveY,
+      })
     }
-    activeItem.currentPosition.setValue({
-      x: moveX,
-      y: moveY,
-    })
   }
   function onHandMove(_: GestureResponderEvent, gestureState: PanResponderGestureState) {
     const activeItem = getActiveItem()
-    if (!activeItem) return false
-    const { moveX, moveY } = gestureState
-    props.onDragging && props.onDragging(gestureState)
+    if (activeItem) {
+      const { moveX, moveY } = gestureState
+      props.onDragging && props.onDragging(gestureState)
 
-    const xChokeAmount = Math.max(0, activeBlockOffset.x + moveX - (gridLayout.width - blockWidth))
-    const xMinChokeAmount = Math.min(0, activeBlockOffset.x + moveX)
+      const xChokeAmount = Math.max(0, activeBlockOffset.x + moveX - (gridLayout.width - blockWidth))
+      const xMinChokeAmount = Math.min(0, activeBlockOffset.x + moveX)
 
-    const dragPosition = {
-      x: moveX - xChokeAmount - xMinChokeAmount,
-      y: moveY,
-    }
-    const originPosition = blockPositions[orderMap[activeItem.key].order]
-    const dragPositionToActivePositionDistance = getDistance(dragPosition, originPosition)
-    activeItem.currentPosition.setValue(dragPosition)
-
-    let closetItemIndex = activeItemIndex as number
-    let closetDistance = dragPositionToActivePositionDistance
-
-    items.forEach((item, index) => {
-      if (item.itemData.disabledReSorted) return
-      if (index != activeItemIndex) {
-        const dragPositionToItemPositionDistance = getDistance(
-          dragPosition,
-          blockPositions[orderMap[item.key].order],
-        )
-        if (
-          dragPositionToItemPositionDistance < closetDistance &&
-          dragPositionToItemPositionDistance < blockWidth
-        ) {
-          closetItemIndex = index
-          closetDistance = dragPositionToItemPositionDistance
-        }
+      const dragPosition = {
+        x: moveX - xChokeAmount - xMinChokeAmount,
+        y: moveY,
       }
-    })
-    if (activeItemIndex != closetItemIndex) {
-      const closetOrder = orderMap[items[closetItemIndex].key].order
-      resetBlockPositionByOrder(orderMap[activeItem.key].order, closetOrder)
-      orderMap[activeItem.key].order = closetOrder
-      props.onResetSort && props.onResetSort(getSortData())
+      const originPosition = blockPositions[orderMap[activeItem.key].order]
+      const dragPositionToActivePositionDistance = getDistance(dragPosition, originPosition)
+      activeItem.currentPosition.setValue(dragPosition)
+
+      let closetItemIndex = activeItemIndex as number
+      let closetDistance = dragPositionToActivePositionDistance
+
+      items.forEach((item, index) => {
+        if (item.itemData.disabledReSorted) return
+        if (index != activeItemIndex) {
+          const dragPositionToItemPositionDistance = getDistance(
+            dragPosition,
+            blockPositions[orderMap[item.key].order],
+          )
+          if (
+            dragPositionToItemPositionDistance < closetDistance &&
+            dragPositionToItemPositionDistance < blockWidth
+          ) {
+            closetItemIndex = index
+            closetDistance = dragPositionToItemPositionDistance
+          }
+        }
+      })
+      if (activeItemIndex != closetItemIndex) {
+        const closetOrder = orderMap[items[closetItemIndex].key].order
+        resetBlockPositionByOrder(orderMap[activeItem.key].order, closetOrder)
+        orderMap[activeItem.key].order = closetOrder
+        props.onResetSort && props.onResetSort(getSortData())
+      }
     }
   }
   function onHandRelease() {
     const activeItem = getActiveItem()
-    if (!activeItem) return false
-    props.onDragRelease && props.onDragRelease(getSortData())
-    setPanResponderCapture(false)
-    activeItem.currentPosition.flattenOffset()
-    moveBlockToBlockOrderPosition(activeItem.key)
-    setActiveItemIndex(undefined)
+    if (activeItem) {
+      props.onDragRelease && props.onDragRelease(getSortData())
+      setPanResponderCapture(false)
+      activeItem.currentPosition.flattenOffset()
+      moveBlockToBlockOrderPosition(activeItem.key)
+      setActiveItemIndex(undefined)
+    }
   }
   function resetBlockPositionByOrder(activeItemOrder: number, insertedPositionOrder: number) {
     let disabledReSortedItemCount = 0
