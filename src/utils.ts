@@ -1,7 +1,7 @@
 function findKey<T>(map: { [key: string]: T }, fn: (item: T) => boolean) {
   const keys = Object.keys(map)
   for (let i = 0; i < keys.length; i++) {
-    if (fn(map[keys[i]])) {
+    if (fn(map[keys[i]!]!)) {
       return keys[i]
     }
   }
@@ -10,7 +10,7 @@ function findKey<T>(map: { [key: string]: T }, fn: (item: T) => boolean) {
 
 function findIndex<T>(arr: T[], fn: (item: T) => boolean) {
   for (let i = 0; i < arr.length; i++) {
-    if (fn(arr[i])) {
+    if (fn(arr[i]!)) {
       return i
     }
   }
