@@ -8,7 +8,7 @@ import {
   StyleSheet,
   GestureResponderHandlers,
 } from 'react-native'
-import { FunctionComponent } from 'react'
+import { FunctionComponent, PropsWithChildren } from 'react'
 
 interface BlockProps {
   style?: StyleProp<any>
@@ -18,7 +18,7 @@ interface BlockProps {
   panHandlers: GestureResponderHandlers
 }
 
-export const Block: FunctionComponent<BlockProps> = ({
+export const Block: FunctionComponent<PropsWithChildren<BlockProps>> = ({
   style,
   dragStartAnimationStyle,
   onPress,
